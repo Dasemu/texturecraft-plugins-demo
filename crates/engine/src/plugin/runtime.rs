@@ -41,15 +41,12 @@ impl Runtime {
     #[cfg(not(target_arch = "wasm32"))]
     fn reload(&mut self) {
         let Some(store) = &self.store else { return };
-        let (installed, problems) = store.list();
+        // The store keeps whatever was installed; only plug-ins for TextureCraft are offered
+        let listing = store.list_for(&super::APP);
         self.plugins.retain(|p| !p.stored);
-        self.problems = problems.into_iter().map(|p| format!("{}: {}", p.dir.display(), p.error)).collect();
-        for i in installed {
-            // The store keeps whatever was installed; only plug-ins for TextureCraft are offered
-            if let Err(why) = i.manifest.target(&super::APP) {
-                self.problems.push(format!("{}: {why}", i.manifest.name));
-                continue;
-            }
+        self.problems = listing.problems.into_iter().map(|p| format!("{}: {}", p.dir.display(), p.error)).collect();
+        self.problems.extend(listing.not_runnable.into_iter().map(|(i, why)| format!("{}: {why}", i.manifest.name)));
+        for (i, _) in listing.runnable {
             let source = serde_json::to_value(&i.record.source).unwrap_or(Value::Null);
             let plugin = InstalledPlugin { manifest: i.manifest, sha256: i.record.sha256, source, stored: true, wasm: std::sync::Arc::new(i.bundle.wasm) };
             self.keep(plugin);

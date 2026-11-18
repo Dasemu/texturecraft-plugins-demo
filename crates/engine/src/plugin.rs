@@ -36,7 +36,7 @@ use crate::{EngineError, Result, Session};
 /// TextureCraft as manifests name it: the command plug-ins of every shared ABI version, and only
 /// manifests that name `texturecraft` in `apps`.
 pub const APP: AppInfo<'static> =
-    AppInfo { id: "texturecraft", version: env!("CARGO_PKG_VERSION"), api: 1..=API_VERSION, kinds: &["command"], accept_legacy: false };
+    AppInfo { id: "texturecraft", version: env!("CARGO_PKG_VERSION"), api: 1..=API_VERSION, kinds: &["command"], accept_legacy: false, kind_api: &[] };
 
 /// What one plug-in may keep in its settings (keys and JSON values, in bytes), and its longest key.
 pub const MAX_SETTINGS_BYTES: usize = 64 * 1024;
@@ -374,7 +374,7 @@ pub(crate) fn install(s: &mut Session, cmd: &str, c: Candidate) -> Result<Instal
     #[cfg(not(target_arch = "wasm32"))]
     if let Some(store) = &s.plugins.store {
         let source: craft_plugin::store::Source = serde_json::from_value(c.source.clone()).map_err(|e| bad(cmd, e.to_string()))?;
-        let i = store.install(&c.bytes, source).map_err(|e| bad(cmd, e))?;
+        let (i, _) = store.install_for(&APP, &c.bytes, source).map_err(|e| bad(cmd, e))?;
         let plugin = InstalledPlugin { manifest: i.manifest, sha256: i.record.sha256, source: c.source, stored: true, wasm: Arc::new(i.bundle.wasm) };
         return Ok(s.plugins.keep(plugin));
     }

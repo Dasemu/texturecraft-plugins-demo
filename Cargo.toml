@@ -90,7 +90,7 @@ craft-menu = { git = "https://github.com/storytold/craft-libs", rev = "390fe98b0
 # WebAssembly command plug-ins (RFC-0046): sandbox, manifest, permissions, store, catalogs and
 # GitHub installs (crates/engine/src/plugin.rs). Pinned to the fork commit the RFC's reference
 # implementation uses.
-craft-plugin = { git = "https://github.com/Dasemu/craft-libs", rev = "77f66b33f7366abb9927113f1f5e427e2593ef84" }
+craft-plugin = { git = "https://github.com/Dasemu/craft-libs", rev = "b9821a27936e4f8a5ef3ad30a9559ecb897c5cc4" }
 
 # egui 0.37 and winit: the suite's forks (storytold/egui, storytold/winit), as craft-libs pins them.
 [patch.crates-io]
