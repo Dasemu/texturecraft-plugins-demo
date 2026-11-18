@@ -172,5 +172,8 @@ Everything you can do in the window, an agent can do too:
   access limited to the folders you give it.
 - **Control channel:** launch the app with `--control <port>` to drive the running UI: run any
   command, invoke menu items, paint, and take screenshots.
+- **Plug-ins:** WebAssembly command plug-ins, installed from a file, a GitHub repository or a
+  catalog after a confirmation that shows what they may do, run any allowed command as one undo
+  step from the Plug-ins menu ([`plugins.md`](plugins.md)).
 
 See [`control-protocol.md`](control-protocol.md) for the full protocol and examples.
