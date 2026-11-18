@@ -70,9 +70,11 @@ fn join(dir: &str, name: &str) -> String {
 }
 
 impl Headless {
-    pub fn new(session: Session, fs: Filesystem) -> Headless {
+    pub fn new(mut session: Session, fs: Filesystem) -> Headless {
         // Bakes run here (CLI, MCP) cast their rays on the GPU when there is one.
         texturecraft_engine::bake::install_gpu_tracer(std::sync::Arc::new(texturecraft_render::gpu_bake::GpuBaker::new()));
+        // Untrusted callers install plug-ins from data, repositories and https catalogs only
+        session.plugins.confined = !matches!(fs, Filesystem::TrustedLocal);
         Headless { session, fs, gpu: None }
     }
 
@@ -124,9 +126,10 @@ impl Headless {
         }
     }
 
-    /// Replace the session, keeping the viewport size scripted strokes use.
+    /// Replace the session, keeping the viewport size scripted strokes use and the plug-ins.
     fn replace(&mut self, mut next: Session) -> Value {
         next.viewport = self.session.viewport;
+        next.plugins = std::mem::take(&mut self.session.plugins);
         self.session = next;
         self.inspect()
     }

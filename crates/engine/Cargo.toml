@@ -21,10 +21,15 @@ epaint_default_fonts = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
+# WebAssembly command plug-ins (`plugin`), and bundles passed as base64 (`plugin.install {data}`).
+craft-plugin = { workspace = true }
+base64 = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 rustix = { workspace = true }
 
 [dev-dependencies]
+# Test plug-ins are written in WebAssembly text.
+wat = "1.261"
 image = { workspace = true }
 zip = { workspace = true }

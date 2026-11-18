@@ -377,6 +377,9 @@ pub struct Session {
     pub export_presets: crate::preset_cmds::UserPresets,
     /// The user's project templates (kept when another project opens).
     pub templates: crate::template_cmds::UserTemplates,
+    /// Installed plug-ins, their store, settings and catalogs, and the last run (kept when another
+    /// project opens; see [`crate::plugin`]).
+    pub plugins: crate::plugin::Runtime,
 }
 
 impl Session {
@@ -428,11 +431,12 @@ impl Session {
             polygon_fill_drag: None,
             export_presets: Default::default(),
             templates: Default::default(),
+            plugins: Default::default(),
         })
     }
 
-    /// Replace this session with `next` (another project), keeping the viewport size and the
-    /// user's export presets and project templates.
+    /// Replace this session with `next` (another project), keeping the viewport size, the user's
+    /// export presets and project templates, and the plug-ins.
     pub fn switch_to(&mut self, mut next: Session) {
         // Invalidate caches even when both projects were loaded with the same revision
         next.revision = self.revision.wrapping_add(1);
@@ -440,6 +444,7 @@ impl Session {
         next.viewport = self.viewport;
         next.export_presets = std::mem::take(&mut self.export_presets);
         next.templates = std::mem::take(&mut self.templates);
+        next.plugins = std::mem::take(&mut self.plugins);
         *self = next;
     }
 
