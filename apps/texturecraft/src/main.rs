@@ -205,6 +205,8 @@ fn main() {
     if let Some(file) = &ui_file {
         let _ = ui_state_store::FILE.set(file.clone());
     }
+    // Plug-ins live in `Plug-ins/` beside the saved settings; scripted runs keep them for the session
+    let plugins_dir = if persistence_path.is_none() { ui_file.as_deref().and_then(std::path::Path::parent).map(std::path::Path::to_path_buf) } else { None };
     let prefs = saved_prefs(ui_file.as_deref(), persistence_path.as_deref());
     prefs.apply_resource_limits();
     let session = initial_session(&args);
@@ -237,6 +239,11 @@ fn main() {
             }
             let window_frame = window_frame::service(cc, matches!(title_bar, TitleBar::App(_)));
             let mut app = TextureCraftApp::new(cc, session);
+            if let Some(dir) = &plugins_dir {
+                app.session.plugins.open_store(dir);
+            }
+            // Plug-in catalogs and releases download over the update checker's HTTPS client
+            app.session.plugins.set_fetch(texturecraft_ui_egui::plugin_http::http_fetch());
             app.title_bar = title_bar;
             app.ui.windows.start = start && app.ui.prefs.start_window;
             app.set_startup_update_check(checks_for_updates_at_start(control));

@@ -41,6 +41,11 @@ pub mod parity;
 mod path_hit;
 mod path_surface_cache;
 pub mod pbr_import;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod plugin_http;
+pub mod plugin_params_dialog;
+pub mod plugin_review;
+pub mod plugins_window;
 mod preview_image;
 mod preview_request;
 mod preview_worker;
@@ -201,6 +206,8 @@ pub struct TextureCraftApp {
     pub(crate) prompt_saved: bool,
     /// The resolved keymap and its key dispatcher.
     pub(crate) bindings: keymap::Bindings,
+    /// The Plug-ins window and its dialogs.
+    pub plugins: plugins_window::PluginsWindow,
 }
 
 impl TextureCraftApp {
@@ -267,12 +274,15 @@ impl TextureCraftApp {
             #[cfg(not(target_arch = "wasm32"))]
             prompt_saved: false,
             bindings: keymap::Bindings::default(),
+            plugins: plugins_window::PluginsWindow::default(),
         };
         app.ui.rename = None;
         app.ui.windows.new_project = false;
         i18n::set_language(&app.ui.prefs.language);
         app.report_ui_storage_warning();
         export_templates::load_library(&mut app, cc.storage);
+        // The engine keeps the plug-ins' settings and catalogs while the app runs (`save` copies them back)
+        app.session.plugins.prefs = app.ui.plugins.clone();
 
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -673,6 +683,7 @@ impl eframe::App for TextureCraftApp {
     }
 
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        self.ui.plugins = self.session.plugins.prefs.clone();
         self.ui_store.save(&self.ui, storage);
         self.report_ui_storage_warning();
         export_templates::save_library(self, storage);

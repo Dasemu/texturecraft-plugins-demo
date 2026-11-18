@@ -188,6 +188,7 @@ pub fn invoke(app: &mut TextureCraftApp, ctx: &egui::Context, id: &str) {
         "ui.layout.2d" => app.ui.layout = ViewLayout::Only2D,
         "ui.help.shortcuts" => app.ui.windows.shortcuts = true,
         "ui.about" => app.ui.windows.about = true,
+        crate::plugins_window::MANAGE => app.plugins.open = true,
         #[cfg(not(target_arch = "wasm32"))]
         "ui.help.checkForUpdates" => crate::updates_ui::request_check(app, ctx),
         "ui.help.discord" => ctx.open_url(egui::OpenUrl::new_tab("https://discord.gg/artcraft")),
@@ -210,6 +211,10 @@ pub fn menu_bar(app: &mut TextureCraftApp, ui: &mut egui::Ui) {
     egui::MenuBar::new().ui(ui, |ui| {
         let ctx = ui.ctx().clone();
         for top in TOP {
+            // Plug-ins, built from the installed plug-ins, comes before Help
+            if top == "Help" {
+                crate::plugins_window::menu(app, &ctx, ui);
+            }
             ui.menu_button(tr(top), |ui| {
                 ui.set_min_width(220.0);
                 let mut current_sub: Option<&str> = None;

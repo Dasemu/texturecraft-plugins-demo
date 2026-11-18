@@ -336,6 +336,9 @@ pub struct UiState {
     pub render: RenderUi,
     #[serde(default)]
     pub prefs: Prefs,
+    /// The plug-ins' settings and catalogs (the engine's while the app runs; kept out of layouts)
+    #[serde(default)]
+    pub plugins: texturecraft_engine::plugin::PluginPrefs,
     #[serde(default)]
     pub export: ExportUi,
     /// Recently opened or saved projects (desktop).
@@ -385,6 +388,7 @@ impl UiState {
         self.export = keep.export;
         self.recent = keep.recent;
         self.prefs = keep.prefs;
+        self.plugins = keep.plugins;
         self.keymap = keep.keymap;
         self.rename = None;
 
@@ -427,6 +431,7 @@ impl Default for UiState {
             wireframe_3d: false,
             render: RenderUi::default(),
             prefs: Prefs::default(),
+            plugins: Default::default(),
             export: ExportUi::default(),
             recent: Vec::new(),
             keymap: Keymap::new(),

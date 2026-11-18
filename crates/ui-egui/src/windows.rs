@@ -30,6 +30,7 @@ pub fn show(app: &mut TextureCraftApp, ctx: &egui::Context) {
     #[cfg(target_arch = "wasm32")]
     export_mesh(app, ctx);
     crate::pbr_import::window(app, ctx);
+    crate::plugins_window::show(app, ctx);
     unsaved(app, ctx);
 }
 
@@ -855,7 +856,7 @@ pub fn layout_file(app: &mut TextureCraftApp, save: bool) {
     app.ask_file(dialog.filter(tr("UI layout"), &["json"]).directory(dir.clone()), Bound::App, move |app, paths| {
         let Some(path) = paths.first() else { return };
         let result = if save {
-            let layout = crate::UiState { recent: Vec::new(), ..app.ui.clone() };
+            let layout = crate::UiState { recent: Vec::new(), plugins: Default::default(), ..app.ui.clone() };
             std::fs::create_dir_all(&dir)
                 .map_err(|e| e.to_string())
                 .and_then(|_| serde_json::to_vec_pretty(&layout).map_err(|e| e.to_string()))
